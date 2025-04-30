@@ -29,14 +29,14 @@ class Service:
             # Cuenta No existe
             if not accountFound:
                 self.logger.error("Account not found")
-                return 404
+                return 203
             
             # Check the password
             if account.get("password") == accountFound.get("password"):
                 return 201
             else:
                 self.logger.error("Invalid password")
-                return 403
+                return 202
             
         except Exception as e:
             self.logger.error(f"Error getting Account from database: {e}")

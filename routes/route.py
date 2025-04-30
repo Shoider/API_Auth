@@ -85,13 +85,15 @@ class FileGeneratorRoute(Blueprint):
 
             if status_code == 201:
                 self.logger.info(f"Cuenta correcta")
-                return jsonify({"message": "Cuenta correcta"}), 201
-            elif status_code == 403:
-                self.logger.error(f"Contrasena incorrecta")
-                return jsonify({"error": "Contrasena incorrecta"}), 403
-            elif status_code == 404:
-                self.logger.error(f"Cuenta no encontrada")
-                return jsonify({"error": "Cuenta no encontrada"}), 404
+                return jsonify({
+                    "message": "Cuenta correcta",
+                }), 201
+            elif status_code == 202:
+                self.logger.info(f"Contrasena incorrecta")
+                return jsonify({"message": "Contrasena incorrecta"}), 202
+            elif status_code == 203:
+                self.logger.info(f"Cuenta no encontrada")
+                return jsonify({"message": "Cuenta no encontrada"}), 203
 
         except ValidationError as err:
             self.logger.error(f"Validation error: {err.messages}")

@@ -6,6 +6,7 @@ from models.model import BDModel
 from routes.route import FileGeneratorRoute
 
 app = Flask(__name__)
+#CORS(app)
 
 logger = Logger()
 
