@@ -17,6 +17,7 @@ class FileGeneratorRoute(Blueprint):
     def register_routes(self): 
         """Function to register the routes for file generation"""
         self.route("/api3/healthcheck", methods=["GET"])(self.healthcheck)
+        self.route("/api3/auth", methods=["POST"])(self.auth)
         self.route("/api3/generate", methods=["POST"])(self.generate_user)
 
     def generate_user(self):
@@ -31,14 +32,12 @@ class FileGeneratorRoute(Blueprint):
             # Validacion
             validated_data = self.schema.load(data)
 
-            password = validated_data.get("passwordInput")
-
-            hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+            hashed_password = hashlib.sha256(validated_data.get("passwordInput").encode('utf-8')).hexdigest()
 
             # Cuenta creada
             cuentaNueva = {
                 "usuario": validated_data.get("emailInput"),
-                "contrasena": hashed_password,
+                "password": hashed_password,
                 "privilegios": "administrador",
                 "fecha_creacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "fecha_expiracion": (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d %H:%M:%S"),
@@ -58,6 +57,50 @@ class FileGeneratorRoute(Blueprint):
         except Exception as e:
             self.logger.error(f"Error agregando cuenta: {e}")
             return jsonify({"error": "Error agregando cuenta"}), 500
+        
+    def auth(self):
+        """Function to authenticate users"""
+        try:
+            # Get the data from the request
+            data = request.get_json()
+
+            if not data:
+                return jsonify({"error": "Invalid data"}), 400
+
+            # Validacion
+            validated_data = self.schema.load(data)
+
+            hashed_password = hashlib.sha256(validated_data.get("passwordInput").encode('utf-8')).hexdigest()
+
+            # Cuenta ingresada
+            cuenta = {
+                "usuario": validated_data.get("emailInput"),
+                "password": hashed_password,
+            }
+
+            # Revision de cuenta
+
+            status_code = self.service.get_account(cuenta)
+            self.logger.info(f"Status code: {status_code}")
+
+            if status_code == 201:
+                self.logger.info(f"Cuenta correcta")
+                return jsonify({"message": "Cuenta correcta"}), 201
+            elif status_code == 403:
+                self.logger.error(f"Contrasena incorrecta")
+                return jsonify({"error": "Contrasena incorrecta"}), 403
+            elif status_code == 404:
+                self.logger.error(f"Cuenta no encontrada")
+                return jsonify({"error": "Cuenta no encontrada"}), 404
+
+        except ValidationError as err:
+            self.logger.error(f"Validation error: {err.messages}")
+            return jsonify({"error": "Invalid input"}), 400
+        
+        except Exception as e:
+            self.logger.error(f"Error de cuenta: {e}")
+            return jsonify({"error": "Error de cuenta"}), 500
+
 
 
     def healthcheck(self):

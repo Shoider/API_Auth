@@ -18,4 +18,27 @@ class Service:
         except Exception as e:
             self.logger.error(f"Error adding new Account to database: {e}")
             return jsonify({"error": f"Error adding new Account to database: {e}"}), 500
+        
+    def get_account(self, account):
+        """Function to get a account register from the database"""
+        try:
+            accountFound = self.db_conn.db.auth.find_one({"usuario": account.get("usuario")})
+            self.logger.info(f"Account find: {account}")
+            self.logger.info(f"Account found: {accountFound}")
+
+            # Cuenta No existe
+            if not accountFound:
+                self.logger.error("Account not found")
+                return 404
+            
+            # Check the password
+            if account.get("password") == accountFound.get("password"):
+                return 201
+            else:
+                self.logger.error("Invalid password")
+                return 403
+            
+        except Exception as e:
+            self.logger.error(f"Error getting Account from database: {e}")
+            return jsonify({"error": "Error de cuenta"}), 500
     
