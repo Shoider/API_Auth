@@ -5,6 +5,8 @@ from services.service import Service
 from models.model import BDModel
 from routes.route import FileGeneratorRoute
 
+#from flask_cors import CORS
+
 app = Flask(__name__)
 #CORS(app)
 
@@ -28,7 +30,8 @@ app.register_blueprint(routes)
 
 if __name__ == "__main__":
     try:
-        app.run(host="0.0.0.0",port=8001, debug=True)
+        #app.run(host="0.0.0.0",port=8001, debug=True)
+        app.run(host="0.0.0.0", debug=True)
         logger.info("Application started")
     finally:
         db_conn.close_connection()

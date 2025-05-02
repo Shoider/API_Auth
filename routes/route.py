@@ -87,6 +87,7 @@ class FileGeneratorRoute(Blueprint):
                 self.logger.info(f"Cuenta correcta")
                 return jsonify({
                     "message": "Cuenta correcta",
+                    "token": "Este Es Un Token"
                 }), 201
             elif status_code == 202:
                 self.logger.info(f"Contrasena incorrecta")
