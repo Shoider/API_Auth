@@ -55,7 +55,7 @@ class FileGeneratorRoute(Blueprint):
             self.logger.debug("Error de validacion 401: ", validacion)
             return jsonify(validacion), 401
         
-        self.logger.debug("message": "Acceso permitido", " usuario": validacion["usuario"], " Codigo: 200")
+        self.logger.debug("message: Acceso permitido usuario: ", validacion["usuario"], " Codigo: 200")
 
         return jsonify({"message": "Acceso permitido", "usuario": validacion["usuario"]}), 200
 
