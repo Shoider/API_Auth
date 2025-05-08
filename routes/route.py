@@ -22,7 +22,7 @@ class FileGeneratorRoute(Blueprint):
         """Function to register the routes for file generation"""
         self.route("/api3/healthcheck", methods=["GET"])(self.healthcheck)
         self.route("/api3/auth", methods=["POST"])(self.auth)
-        self.route("/api3/protected", methods=["GET"])(self.protected_route)
+        self.route("/api3/protected", methods=["POST"])(self.protected_route)
         self.route("/api3/generate", methods=["POST"])(self.generate_user)
 
     def validar_token(self, token):
@@ -40,13 +40,14 @@ class FileGeneratorRoute(Blueprint):
 
     def protected_route(self):
         """Function to handle a protected route"""
-        token = request.headers.get("Authorization")  # El token debe enviarse en el encabezado Authorization
+        data = request.get_json()
+        token = data.get("token")
 
         self.logger.debug("Token recibido: ", token)
 
         if not token:
-            self.logger.debug("Token no proporcionado, 401")
-            return jsonify({"error": "Token no proporcionado"}), 401
+            self.logger.debug("Token no proporcionado, 201")
+            return jsonify({"error": "Token no proporcionado"}), 201
 
         # Validar el token
         validacion = self.validar_token(token)
@@ -57,7 +58,7 @@ class FileGeneratorRoute(Blueprint):
         
         self.logger.debug("message: Acceso permitido usuario: ", validacion["usuario"], " Codigo: 200")
 
-        return jsonify({"message": "Acceso permitido", "usuario": validacion["usuario"]}), 200
+        return jsonify({"message": "Acceso permitido", "usuario": validacion["usuario", "token": token]}), 200
 
     def generate_user(self):
         """Function to register users"""
