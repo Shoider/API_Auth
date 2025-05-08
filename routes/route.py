@@ -3,6 +3,10 @@ from datetime import datetime, timedelta
 from logger.logger import Logger
 from marshmallow import ValidationError
 import hashlib
+import jwt  # Importa PyJWT
+import os
+
+secret_key = os.getenv("SECRET_KEY", "mi_clave_secreta")
 
 class FileGeneratorRoute(Blueprint):
     """Class to handle the routes for file generation"""
@@ -18,7 +22,32 @@ class FileGeneratorRoute(Blueprint):
         """Function to register the routes for file generation"""
         self.route("/api3/healthcheck", methods=["GET"])(self.healthcheck)
         self.route("/api3/auth", methods=["POST"])(self.auth)
+        self.route("/api3/protected", methods=["GET"])(self.protected_route)
         self.route("/api3/generate", methods=["POST"])(self.generate_user)
+
+    def validar_token(self, token):
+        """Valida el token JWT"""
+        try:
+            payload = jwt.decode(token, secret_key, algorithms=["HS256"])
+            return payload  # El token es válido
+        except jwt.ExpiredSignatureError:
+            return {"error": "Token expirado"}
+        except jwt.InvalidTokenError:
+            return {"error": "Token inválido"}
+
+    def protected_route(self):
+        """Function to handle a protected route"""
+        token = request.headers.get("Authorization")  # El token debe enviarse en el encabezado Authorization
+
+        if not token:
+            return jsonify({"error": "Token no proporcionado"}), 401
+
+        # Validar el token
+        validacion = self.validar_token(token)
+        if "error" in validacion:
+            return jsonify(validacion), 401
+
+        return jsonify({"message": "Acceso permitido", "usuario": validacion["usuario"]}), 200
 
     def generate_user(self):
         """Function to register users"""
@@ -47,6 +76,7 @@ class FileGeneratorRoute(Blueprint):
             # Guardar en BD
             status_code = self.service.add_account(cuentaNueva)
             self.logger.info(f"Status code: {status_code}")
+            
             if status_code == 201:
                 return jsonify({"message": "Cuenta agregada exitosamente"}), 201
 
@@ -61,50 +91,65 @@ class FileGeneratorRoute(Blueprint):
     def auth(self):
         """Function to authenticate users"""
         try:
-            # Get the data from the request
+            self.logger.info("Iniciando autenticación...")
+
+            # Obtener los datos de la solicitud
             data = request.get_json()
+            self.logger.info(f"Datos recibidos: {data}")
 
             if not data:
+                self.logger.error("No se recibieron datos en la solicitud.")
                 return jsonify({"error": "Invalid data"}), 400
 
-            # Validacion
+            # Validación
             validated_data = self.schema.load(data)
+            self.logger.info(f"Datos validados: {validated_data}")
 
             hashed_password = hashlib.sha256(validated_data.get("passwordInput").encode('utf-8')).hexdigest()
+            self.logger.info(f"Contraseña encriptada: {hashed_password}")
 
             # Cuenta ingresada
             cuenta = {
                 "usuario": validated_data.get("emailInput"),
                 "password": hashed_password,
             }
+            self.logger.info(f"Cuenta ingresada: {cuenta}")
 
-            # Revision de cuenta
-
+            # Revisión de cuenta
             status_code = self.service.get_account(cuenta)
             self.logger.info(f"Status code: {status_code}")
 
             if status_code == 201:
-                self.logger.info(f"Cuenta correcta")
+                self.logger.info("Cuenta correcta. Generando token JWT...")
+
+                # Generar un token JWT válido por 1 minuto
+                payload = {
+                    "usuario": cuenta["usuario"],
+                    "exp": datetime.utcnow() + timedelta(minutes=1),  # Fecha de expiración
+                    "iat": datetime.utcnow(),  # Fecha de emisión
+                }
+                token = jwt.encode(payload, secret_key, algorithm="HS256")
+                self.logger.info(f"Token generado: {token}")
+
                 return jsonify({
                     "message": "Cuenta correcta",
-                    "token": "Este Es Un Token"
+                    "token": token
                 }), 201
+
             elif status_code == 202:
-                self.logger.info(f"Contrasena incorrecta")
-                return jsonify({"message": "Contrasena incorrecta"}), 202
+                self.logger.info("Contraseña incorrecta.")
+                return jsonify({"message": "Contraseña incorrecta"}), 202
             elif status_code == 203:
-                self.logger.info(f"Cuenta no encontrada")
+                self.logger.info("Cuenta no encontrada.")
                 return jsonify({"message": "Cuenta no encontrada"}), 203
 
         except ValidationError as err:
             self.logger.error(f"Validation error: {err.messages}")
             return jsonify({"error": "Invalid input"}), 400
-        
+
         except Exception as e:
             self.logger.error(f"Error de cuenta: {e}")
             return jsonify({"error": "Error de cuenta"}), 500
-
-
 
     def healthcheck(self):
         """Function to check the health of the services API inside the docker container"""
