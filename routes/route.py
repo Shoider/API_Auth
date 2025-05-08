@@ -1,8 +1,14 @@
 from flask import Blueprint, request, jsonify, send_file
 from datetime import datetime, timedelta
+
+import jwt.exceptions
+
 from logger.logger import Logger
 from marshmallow import ValidationError
 import hashlib
+import jwt 
+import os
+import api_jwt
 
 class FileGeneratorRoute(Blueprint):
     """Class to handle the routes for file generation"""
@@ -85,10 +91,28 @@ class FileGeneratorRoute(Blueprint):
 
             if status_code == 201:
                 self.logger.info(f"Cuenta correcta")
+                self.logger.info("Cuenta correcta. Generando token JWT...")
+
+                #secret_key = "mi_clave_secreta"  
+                # Clave secreta obtenida de las cariables de entorno
+                secret_key = os.getenv("SECRET_KEY", "mi_clave")
+                self.logger.info("Variable de entorno con clave secreta: " + secret_key)
+
+                payload = {
+                    "usuario": cuenta["usuario"],
+                    "exp": datetime.utcnow() + timedelta(minutes=15),  # Fecha de expiración
+                    "iat": datetime.utcnow(),  # Fecha de emisión
+                }
+
+                #token = jwt.encode(payload, secret_key, algorithm="HS256")
+                #token = jwt.JWT.encode(payload, secret_key, "RS256")
+                self.logger.info(f"Token generado: {token}")
+
                 return jsonify({
                     "message": "Cuenta correcta",
-                    "token": "Este Es Un Token"
+                    "token": "Este Es Tu Token: " + token
                 }), 201
+
             elif status_code == 202:
                 self.logger.info(f"Contrasena incorrecta")
                 return jsonify({"message": "Contrasena incorrecta"}), 202
