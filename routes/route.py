@@ -29,23 +29,33 @@ class FileGeneratorRoute(Blueprint):
         """Valida el token JWT"""
         try:
             payload = jwt.decode(token, secret_key, algorithms=["HS256"])
+            self.logger.debug("Token Valido: ", token)
             return payload  # El token es válido
         except jwt.ExpiredSignatureError:
+            self.logger.debug("Token Expirado")
             return {"error": "Token expirado"}
         except jwt.InvalidTokenError:
+            self.logger.debug("Token Invalido")
             return {"error": "Token inválido"}
 
     def protected_route(self):
         """Function to handle a protected route"""
         token = request.headers.get("Authorization")  # El token debe enviarse en el encabezado Authorization
 
+        self.logger.debug("Token recibido: ", token)
+
         if not token:
+            self.logger.debug("Token no proporcionado, 401")
             return jsonify({"error": "Token no proporcionado"}), 401
 
         # Validar el token
         validacion = self.validar_token(token)
+        self.logger.debug("Token que se mando a validar: ", token, "Con resultado: ", validacion)
         if "error" in validacion:
+            self.logger.debug("Error de validacion 401: ", validacion)
             return jsonify(validacion), 401
+        
+        self.logger.debug("message": "Acceso permitido", " usuario": validacion["usuario"], " Codigo: 200")
 
         return jsonify({"message": "Acceso permitido", "usuario": validacion["usuario"]}), 200
 
