@@ -1,14 +1,11 @@
 from flask import Blueprint, request, jsonify, send_file
 from datetime import datetime, timedelta
 
-import jwt.exceptions
-
 from logger.logger import Logger
 from marshmallow import ValidationError
 import hashlib
-import jwt 
+import jwt
 import os
-import api_jwt
 
 class FileGeneratorRoute(Blueprint):
     """Class to handle the routes for file generation"""
@@ -105,6 +102,7 @@ class FileGeneratorRoute(Blueprint):
                 }
 
                 #token = jwt.encode(payload, secret_key, algorithm="HS256")
+                token = jwt.api_jwt.encode(payload, secret_key, algorithm="HS256")
                 #token = jwt.JWT.encode(payload, secret_key, "RS256")
                 self.logger.info(f"Token generado: {token}")
 
