@@ -22,21 +22,32 @@ class FileGeneratorRoute(Blueprint):
         """Function to register the routes for file generation"""
         self.route("/api3/healthcheck", methods=["GET"])(self.healthcheck)
         self.route("/api3/auth", methods=["POST"])(self.auth)
+        self.route("/api3/validar_token", methods=["POST"])(self.validar_token)
         self.route("/api3/protected", methods=["POST"])(self.protected_route)
         self.route("/api3/generate", methods=["POST"])(self.generate_user)
 
-    def validar_token(self, token):
-        """Valida el token JWT"""
+    def validar_token(self):
+        """Endpoint para validar el token"""
         try:
-            payload = jwt.decode(token, secret_key, algorithms=["HS256"])
-            self.logger.debug("Token Valido: ", token)
-            return payload  # El token es válido
-        except jwt.ExpiredSignatureError:
-            self.logger.debug("Token Expirado")
-            return {"error": "Token expirado"}
-        except jwt.InvalidTokenError:
-            self.logger.debug("Token Invalido")
-            return {"error": "Token inválido"}
+            # Obtener el token del cuerpo de la solicitud
+            data = request.get_json()
+            if not data or "token" not in data:
+                return jsonify({"error": "Token no proporcionado"}), 400
+
+            token = data["token"]
+
+            # Decodificar y validar el token
+            try:
+                decoded_token = jwt.decode(token, secret_key, algorithms=["HS256"])
+                return jsonify({"message": "Token válido", "usuario": decoded_token["usuario"]}), 210
+            except jwt.ExpiredSignatureError:
+                return jsonify({"error": "Token expirado"}), 211
+            except jwt.InvalidTokenError:
+                return jsonify({"error": "Token inválido"}), 212
+
+        except Exception as e:
+            self.logger.error(f"Error validando el token: {e}")
+            return jsonify({"error": "Error interno del servidor"}), 401
 
     def protected_route(self):
         """Function to handle a protected route"""
@@ -107,6 +118,7 @@ class FileGeneratorRoute(Blueprint):
             # Obtener los datos de la solicitud
             data = request.get_json()
             self.logger.info(f"Datos recibidos: {data}")
+            
 
             if not data:
                 self.logger.error("No se recibieron datos en la solicitud.")
@@ -161,7 +173,8 @@ class FileGeneratorRoute(Blueprint):
         except Exception as e:
             self.logger.error(f"Error de cuenta: {e}")
             return jsonify({"error": "Error de cuenta"}), 500
-
+    
+    
     def healthcheck(self):
         """Function to check the health of the services API inside the docker container"""
         return jsonify({"status": "Up"}), 200
