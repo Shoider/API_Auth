@@ -13,6 +13,15 @@ class Logger:
             handlers=[log.StreamHandler(), log.FileHandler(log_file)]
         )
         self.logger = log.getLogger()
+
+    """     def __init__(self, log_file="auth.log", level=log.INFO):
+        log.basicConfig(
+            level=level,
+            format="%(asctime)s: %(levelname)s [%(filename)s:%(lineno)s] %(message)s",
+            datefmt="%I:%M:%S %p",
+            handlers=[log.StreamHandler(), log.FileHandler(log_file)],
+        )
+        self.logger = log.getLogger() """
     
     def debug(self, message):
         """Log a message with severity 'DEBUG' on the logger"""
