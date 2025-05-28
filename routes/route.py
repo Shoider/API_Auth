@@ -148,7 +148,7 @@ class FileGeneratorRoute(Blueprint):
                 # Generar un token JWT válido por 1 minuto
                 payload = {
                     "usuario": cuenta["usuario"],
-                    "exp": datetime.utcnow() + timedelta(minutes=1),  # Fecha de expiración
+                    "exp": datetime.utcnow() + timedelta(minutes=10),  # Fecha de expiración
                     "iat": datetime.utcnow(),  # Fecha de emisión
                 }
                 token = jwt.encode(payload, secret_key, algorithm="HS256")
