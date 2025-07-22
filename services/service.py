@@ -1,6 +1,4 @@
-from datetime import datetime, timedelta
 from flask import jsonify
-from pymongo import ReturnDocument
 from logger.logger import Logger
 
 class Service:
