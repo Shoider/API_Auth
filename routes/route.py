@@ -89,8 +89,10 @@ class FileGeneratorRoute(Blueprint):
             cuentaNueva = {
                 "usuario": validated_data.get("emailInput"),
                 "password": hashed_password,
-                "privilegios": "administrador",
+                #Crear los privilegios según el usuario
+                "privilegios": validated_data.get("privilegesInput"),
                 "fecha_creacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                #Cambiar la fecha de expiración, dependiendo lo que se necesita
                 "fecha_expiracion": (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d %H:%M:%S"),
                 "estado": "activo"
             }
@@ -145,7 +147,7 @@ class FileGeneratorRoute(Blueprint):
             if status_code == 201:
                 self.logger.info("Cuenta correcta. Generando token JWT...")
 
-                # Generar un token JWT válido por 1 minuto
+                # Generar un token JWT válido por 10 minutos
                 payload = {
                     "usuario": cuenta["usuario"],
                     "exp": datetime.utcnow() + timedelta(minutes=10),  # Fecha de expiración
