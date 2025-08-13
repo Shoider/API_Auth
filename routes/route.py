@@ -143,8 +143,8 @@ class FileGeneratorRoute(Blueprint):
             # Revisión de cuenta
             status_code = self.service.get_account(cuenta)
             self.logger.info(f"Status code: {status_code}")
-
-            if status_code == 201:
+            
+            if status_code["status"] == 201:
                 self.logger.info("Cuenta correcta. Generando token JWT...")
 
                 # Generar un token JWT válido por 10 minutos
@@ -158,7 +158,8 @@ class FileGeneratorRoute(Blueprint):
 
                 return jsonify({
                     "message": "Cuenta correcta",
-                    "token": token
+                    "token": token,
+                    "tipoUsuario":status_code["tipoUsuario"]
                 }), 201
 
             elif status_code == 202:
@@ -174,8 +175,7 @@ class FileGeneratorRoute(Blueprint):
 
         except Exception as e:
             self.logger.error(f"Error de cuenta: {e}")
-            return jsonify({"error": "Error de cuenta"}), 500
-    
+            return jsonify({"error": "Error de cuenta"}), 500  
     
     def healthcheck(self):
         """Function to check the health of the services API inside the docker container"""

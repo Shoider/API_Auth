@@ -31,10 +31,13 @@ class Service:
             
             # Check the password
             if account.get("password") == accountFound.get("password"):
-                return 201
+                tipoUsuario = accountFound.get("privilegios")
+                self.logger.info(tipoUsuario)
+                return {"status": 201, "tipoUsuario": tipoUsuario}             
             else:
                 self.logger.error("Invalid password")
-                return 202
+                return 202           
+            
             
         except Exception as e:
             self.logger.error(f"Error getting Account from database: {e}")
