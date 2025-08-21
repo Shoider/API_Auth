@@ -144,7 +144,8 @@ class FileGeneratorRoute(Blueprint):
             status_code = self.service.get_account(cuenta)
             self.logger.info(f"Status code: {status_code}")
             
-            if status_code["status"] == 201:
+            if status_code == 201:
+            #if status_code["status"] == 201:
                 self.logger.info("Cuenta correcta. Generando token JWT...")
 
                 # Generar un token JWT válido por 10 minutos
@@ -156,10 +157,11 @@ class FileGeneratorRoute(Blueprint):
                 token = jwt.encode(payload, secret_key, algorithm="HS256")
                 self.logger.info(f"Token generado: {token}")
 
+                #privilegios = status_code["tipoUsuario"]
                 return jsonify({
                     "message": "Cuenta correcta",
                     "token": token,
-                    "tipoUsuario":status_code["tipoUsuario"]
+                    #"tipoUsuario":status_code["tipoUsuario"]
                 }), 201
 
             elif status_code == 202:

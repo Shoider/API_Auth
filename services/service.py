@@ -33,7 +33,8 @@ class Service:
             if account.get("password") == accountFound.get("password"):
                 tipoUsuario = accountFound.get("privilegios")
                 self.logger.info(tipoUsuario)
-                return {"status": 201, "tipoUsuario": tipoUsuario}             
+                #return {"status": 201, "tipoUsuario": tipoUsuario}   
+                return 201          
             else:
                 self.logger.error("Invalid password")
                 return 202           

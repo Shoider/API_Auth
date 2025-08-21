@@ -13,6 +13,10 @@ curl -X POST http://localhost:8001/api3/auth \
 -H "Content-Type: application/json" \
 -d '{"emailInput": "brandon@gmail.com", "passwordInput": "1234"}'
 
+curl -X POST http://localhost:8006/api3/validar_privilegios \
+-H "Content-Type: application/json" \
+
+
 Variables de Entorno: (DEBUG)
 export MONGODB_USER=admin
 ;export MONGODB_PASS=pass123
