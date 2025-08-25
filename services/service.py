@@ -27,17 +27,19 @@ class Service:
             # Cuenta No existe
             if not accountFound:
                 self.logger.error("Account not found")
-                return 203
+                return {"status": 203, "tipoUsuario": "No encontrado"}
+                #return 203
             
             # Check the password
             if account.get("password") == accountFound.get("password"):
                 tipoUsuario = accountFound.get("privilegios")
                 self.logger.info(tipoUsuario)
-                #return {"status": 201, "tipoUsuario": tipoUsuario}   
-                return 201          
+                return {"status": 201, "tipoUsuario": tipoUsuario}   
+                #return 201          
             else:
                 self.logger.error("Invalid password")
-                return 202           
+                return {"status": 202, "tipoUsuario": "No encontrado"}
+                #return 202           
             
             
         except Exception as e:
