@@ -21,3 +21,19 @@ Variables de Entorno: (DEBUG)
 export MONGODB_USER=admin
 ;export MONGODB_PASS=pass123
 ;export MONGODB_HOST=localhost
+
+curl -X POST http://localhost:8006/api3/generate -H "Content-Type: application/json" -d '{"emailInput": "jesus.torres", "passwordInput": "zJg890oLNVky", "privilegesInput" : "rfc"}'
+{"message":"Cuenta agregada exitosamente"}
+
+cuenta:
+jesus.torres
+contraseña:
+zJg890oLNVky
+
+curl -X POST http://localhost:8006/api3/generate -H "Content-Type: application/json" -d '{"emailInput": "raul.romero", "passwordInput": "gNj6vUj988Rz", "privilegesInput" : "vpn"}'
+
+cuenta:
+raul.romero
+contraseña:
+gNj6vUj988Rz
+
