@@ -32,6 +32,14 @@ zJg890oLNVky
 
 curl -X POST http://localhost:8006/api3/generate -H "Content-Type: application/json" -d '{"emailInput": "raul.romero", "passwordInput": "gNj6vUj988Rz", "privilegesInput" : "vpn"}'
 
+---DNS en servidor de desarrollo
+curl -X POST http://localhost:8006/api3/generate -H "Content-Type: application/json" -d '{"emailInput": "cuenta.dns", "passwordInput": "gNj8vUj98ERz", "privilegesInput" : "dns"}'
+
+cuenta:
+cuenta.dns
+contraseña:
+gNj8vUj98ERz
+
 cuenta:
 raul.romero
 contraseña:
