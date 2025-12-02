@@ -40,6 +40,14 @@ cuenta.dns
 contraseña:
 gNj8vUj98ERz
 
+---ABC en servidor de desarrollo
+curl -X POST http://localhost:8006/api3/generate -H "Content-Type: application/json" -d '{"emailInput": "cuenta.abc", "passwordInput": "gNj8vUj98ER3", "privilegesInput" : "abc"}'
+
+cuenta:
+cuenta.abc
+contraseña:
+gNj8vUj98ER3
+
 cuenta:
 raul.romero
 contraseña:
