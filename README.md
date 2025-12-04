@@ -53,3 +53,4 @@ raul.romero
 contraseña:
 gNj6vUj988Rz
 
+curl -X POST http://localhost:8006/api3/generate -H "Content-Type: application/json" -d '{"emailInput": "cuentaPrueba", "passwordInput": "Pru3B4", "privilegesInput" : "admin"}'
